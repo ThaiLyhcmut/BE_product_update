@@ -2,9 +2,9 @@ extends ../../layouts/default.pug
 block main
   h1(class="mb-4") #{pageTitle}
   form(
-    action=`${prefixAdmin}/account/create`
+    action=`${prefixAdmin}/account/edit/${account.id}?_method=PATCH`
     method="POST"
-		enctype="multipart/form-data"
+    enctype="multipart/form-data"
   )
     div(class="form-group")
       label(for="fullName") Họ tên *
@@ -14,6 +14,7 @@ block main
         id="fullName"
         name="fullName"
         required
+        value=account.fullName
       )
     div(class="form-group")
       label(for="email") Email *
@@ -23,15 +24,7 @@ block main
         id="email"
         name="email"
         required
-      )
-    div(class="form-group")
-      label(for="password") Mật khẩu *
-      input(
-        type="password"
-        class="form-control"
-        id="password"
-        name="password"
-        required
+        value=account.email
       )
     div(class="form-group")
       label(for="phone") Số điện thoại
@@ -40,6 +33,7 @@ block main
         class="form-control"
         id="phone"
         name="phone"
+        value=account.phone
       )
     div(
       class="form-group"
@@ -55,7 +49,7 @@ block main
         upload-image-input
       )
       img(
-        src=""
+        src=account.avatar
         class="image-preview"
         upload-image-preview
       )
@@ -64,7 +58,7 @@ block main
       select(name="role_id" id="role_id" class="form-control")
         option(disabled) -- Chọn --
         each role in roles
-          option(value=role.id) #{role.title}
+          option(value=role.id selected=(role.id == account.role_id)) #{role.title}
     div(class="form-group form-check form-check-inline")
       input(
         type="radio"
@@ -72,7 +66,7 @@ block main
         id="statusActive"
         name="status"
         value="active"
-        checked
+        checked=(account.status == "active"?true:false)
       )
       label(for="statusActive" class="form-check-label") Hoạt động
     div(class="form-group form-check form-check-inline")
@@ -82,6 +76,7 @@ block main
         id="statusInActive"
         name="status"
         value="inactive"
+        checked=(account.status == "active"?false:true)
       )
       label(for="statusInActive" class="form-check-label") Dừng hoạt động
     div(class="form-group")

@@ -38,3 +38,46 @@ module.exports.createPost = async (req, res) => {
   await account.save()
   res.redirect(`${systemConfig.prefixAdmin}/account`)
 }
+
+module.exports.edit = async (req, res) => {
+  const roles = await Role.find({
+    deleted: false
+  })
+  const account = await Account.findOne({
+    _id: req.params.id,
+    deleted: false
+  })
+  res.render("admin/pages/account/edit", {
+    Pagetitle: "Trang chinh sua san pham",
+    roles: roles,
+    account: account
+  })
+}
+
+module.exports.editPatch = async (req, res) => {
+  await Account.updateOne({
+    _id: req.params.id,
+    deleted: false
+  },req.body)
+  res.redirect('back')
+}
+
+
+module.exports.changePassword = async (req, res) => {
+  const account = await Account({
+    _id: req.params.id,
+    deleted: false
+  })
+  res.render("admin/pages/account/change-password", {
+    account: account,
+    Pagetitle: "Trang doi MK"
+  })
+}
+
+module.exports.changePasswordPost = async (req, res) => {
+  req.body.password = md5(req.body.password)
+  account = await Account.updateOne({
+    _id: req.params.id
+  },req.body)
+  res.redirect(`${systemConfig.prefixAdmin}/account`)
+}
