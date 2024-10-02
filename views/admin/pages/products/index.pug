@@ -1,0 +1,110 @@
+extends ../../layouts/default.pug
+include ../../mixins/box-filter.pug
+block main
+  h1 Danh sách sản phẩm
+
+  .card
+    .card-header Bo loc 
+    .card-body
+      .row 
+        .col-4
+          +box-filter([
+            {
+              label: "all",
+              value: ""
+            },
+            {
+              label: "active",
+              value: "active"
+            },
+            {
+              label: "inactive",
+              value: "inactive"
+            }
+          ], "box-filter")
+        .col-8 
+          include ../../partials/form-search.pug
+  .card
+    .card-header Danh sach
+    .card-body
+      .row.mb-3 
+        .col-6
+          form(form-change-multi data-path=`${prefixAdmin}/products/change-multi`).d-flex
+            +box-filter([
+              {
+                label: "active",
+                value: "active"
+              },
+              {
+                label: "inactive",
+                value: "inactive"
+              },
+              {
+                label: "delete",
+                value: "delete"
+              }
+            ], "")
+            .input-group-append
+              button(
+                class = "btn btn-success"
+                type = "submit"
+              ) Tim
+        .col-6.text-right
+          a(href="/admin/products/create"
+          class = "btn btn-outline-success"
+          ) + add product
+      table.table.table-hover.table-sm
+        thead
+          tr
+            th
+            th STT
+            th Hình ảnh
+            th Tiêu đề
+            th Giá
+            th vi tri
+            th Trạng thái
+            th Hành động
+
+        tbody
+          each item,index in products
+            tr 
+              td
+                input(type="checkbox", name="status" input-change=item.id)
+              td #{index+1 + (currentPage-1)*4}
+              td
+                img(
+                  src=item.thumbnail
+                  alt=item.title
+                  width="100px"
+                  height="auto"
+                )
+              td #{item.title}
+              td #{(item.price*(1-item.discountPercentage/100)).toFixed(2)}$
+              td 
+                input(
+                  change-position
+                  type= "number"
+                  value=item.position 
+                  style= "width: 60px;"
+                  item-id=item.id
+                  data-path=`${prefixAdmin}/products/change-position`
+                )
+              td
+                button(button-change-status=item.status item-id=item.id data-path=`${prefixAdmin}/products/change` class=`badge badge-${item.status == "active" ? "success" : "danger"}`) #{item.status}
+              td
+                a(class="btn btn-info btn-sm" href=`${prefixAdmin}/products/detail/${item.id}`) Chi tiet
+                a(class="btn btn-warning btn-sm ml-1" href=`${prefixAdmin}/products/edit/${item.id}`) Sửa
+                button(class="btn btn-danger btn-sm ml-1" item-id=item.id button-delete data-path=`${prefixAdmin}/products/delete`) Xóa
+  nav(class="mt-3")
+    ul.justify-content-center.pagination
+      //- li.page-item
+      //-   button.page-link Trang truoc
+      if(currentPage > 1)
+        li.page-item
+          button.page-link(button-pagination=currentPage-1).text-dark Back
+      -for (var i = 1; i <= total_page; i++)
+        li.page-item
+          button.page-link.text-dark(button-pagination=i class=`${i == currentPage?"bg-primary":""}`) #{i}
+      if(currentPage < total_page)
+        li.page-item
+          button.page-link.text-dark(button-pagination=currentPage+1) Next

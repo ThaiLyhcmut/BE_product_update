@@ -1,0 +1,4 @@
+mixin box-filter(options, attribute)
+  select(class = "form-control" ${attribute} id="exampleFormControlSelect1" name="status")
+    each item in options
+      option(value = item.value) #{item.label}
