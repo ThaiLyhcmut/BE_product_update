@@ -1,7 +1,12 @@
 const Product = require("../../models/product_model")
 const systemConfig = require("../../config/system")
 const ProductCategory = require("../../models/product-category")
+const Account = require("../../models/account_model")
+const moment = require("moment")
 module.exports.index = async (req,res) => {
+  if(!res.locals.role.permissions.includes("products_view")){
+    return
+  }
   const find = {
     deleted: false,
   }
@@ -24,8 +29,24 @@ module.exports.index = async (req,res) => {
     limitItems = parseInt(req.query.limitItems)
   }
   const skip = (page - 1)*limitItems
-
+  
   const products = await Product.find(find).limit(limitItems).skip(skip).sort({position: 1})
+  for (const item of products) {
+    if(item.createBy){
+      const infoCreate = await Account.findOne({_id: item.createBy})
+      item.createByFullName = infoCreate.fullName
+    }
+    if(item.updateBy){
+      const infoCreate = await Account.findOne({_id: item.updateBy})
+      item.updateByFullName = infoCreate.fullName
+    }
+    if(item.createAt){
+      item.createAtFormat = moment(item.createAt).format("HH:mm DD/MM/YY")
+    }
+    if(item.updateAt){
+      item.updateAtFormat = moment(item.updateAt).format("HH:mm DD/MM/YY")
+    }
+  }
   const total_products = await Product.countDocuments(find)
   const total_page = parseInt((total_products + limitItems - 1)/limitItems)
   res.render("admin/pages/products/index", {
@@ -42,6 +63,9 @@ module.exports.index = async (req,res) => {
 }
 
 module.exports.changeStatus = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products_edit")){
+    return
+  }
   await Product.updateOne({
     _id: req.body.id
   }, {
@@ -54,7 +78,9 @@ module.exports.changeStatus = async (req, res) => {
 }
 
 module.exports.changeMulti = async (req, res) => {
-
+  if(!res.locals.role.permissions.includes("products_edit")){
+    return
+  }
   switch(req.body.status){
     case "delete":
       await Product.updateMany({
@@ -88,6 +114,9 @@ module.exports.changeMulti = async (req, res) => {
 }
 
 module.exports.delete = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products_delete")){
+    return
+  }
   await Product.updateOne({
     _id: req.body.id
   }, {
@@ -100,6 +129,9 @@ module.exports.delete = async (req, res) => {
 }
 
 module.exports.changePosition = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products_edit")){
+    return
+  }
   await Product.updateOne({
     _id: req.body.id
   }, {
@@ -113,6 +145,9 @@ module.exports.changePosition = async (req, res) => {
 }
 
 module.exports.create = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products_create")){
+    return
+  }
   const listCategory = await ProductCategory.find({
     deleted: false
   })
@@ -122,9 +157,14 @@ module.exports.create = async (req, res) => {
   })
 }
 module.exports.createPost = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products_create")){
+    return
+  }
   req.body.price = parseInt(req.body.price)
   req.body.discountPercentage = parseInt(req.body.discountPercentage)
   req.body.stock = parseInt(req.body.stock)
+  req.body.createAt = new Date()
+  req.body.createBy = res.locals.user.id
   if(!req.body.deleted){
     req.body.deleted = "false"
   }
@@ -139,6 +179,9 @@ module.exports.createPost = async (req, res) => {
 }
 
 module.exports.edit = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products_edit")){
+    return
+  }
   const id = req.params.id
   const productDetail = await Product.findOne({
     _id: id,
@@ -155,10 +198,15 @@ module.exports.edit = async (req, res) => {
 }
 
 module.exports.editPatch = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products_edit")){
+    return
+  }
   req.body.price = parseInt(req.body.price)
   req.body.discountPercentage = parseInt(req.body.discountPercentage)
   req.body.stock = parseInt(req.body.stock)
   req.body.position = parseInt(req.body.position)
+  req.body.updateAt = new Date()
+  req.body.updateBy = res.locals.user.id
   console.log(req.body)
   const id = req.params.id
   await Product.updateOne({
@@ -170,6 +218,9 @@ module.exports.editPatch = async (req, res) => {
 }
 
 module.exports.detail = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products_view")){
+    return
+  }
   const id = req.params.id
   const productDetail = await Product.findOne({
     _id: id,
@@ -183,6 +234,9 @@ module.exports.detail = async (req, res) => {
 
 
 module.exports.trash = async(req, res) => {
+  if(!res.locals.role.permissions.includes("products_delete")){
+    return
+  }
   const products = await Product.find({
     deleted: true
   })
@@ -193,6 +247,9 @@ module.exports.trash = async(req, res) => {
 }
 
 module.exports.trashDelete = async(req, res) => {
+  if(!res.locals.role.permissions.includes("products_delete")){
+    return
+  }
   const id = req.body.id
   console.log(req.body)
   await Product.deleteOne({
@@ -204,6 +261,9 @@ module.exports.trashDelete = async(req, res) => {
 }
 
 module.exports.trashChange = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products_delete")){
+    return
+  }
   const id = req.body.id
   await Product.updateOne({
     _id: id

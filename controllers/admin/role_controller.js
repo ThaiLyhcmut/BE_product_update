@@ -1,6 +1,9 @@
 const Role = require("../../models/role_model")
 const systemConfig = require("../../config/system")
 module.exports.index = async (req, res) => {
+  if(!res.locals.role.permissions.includes("roles_view")){
+    return
+  }
   const records = await Role.find({
     deleted: false
   })
@@ -11,12 +14,18 @@ module.exports.index = async (req, res) => {
 }
 
 module.exports.create = async (req, res) => {
+  if(!res.locals.role.permissions.includes("roles_create")){
+    return
+  }
   res.render("admin/pages/role/create", {
     Pagetitle: "them nhom quyen",
   })
 }
 
 module.exports.createPost = async (req, res) => {
+  if(!res.locals.role.permissions.includes("roles_create")){
+    return
+  }
   const role = new Role(req.body)
   await role.save()
   
@@ -24,6 +33,9 @@ module.exports.createPost = async (req, res) => {
 }
 
 module.exports.edit = async (req, res) => {
+  if(!res.locals.role.permissions.includes("roles_edit")){
+    return
+  }
   const id = req.params.id
   const role = await Role.findOne({
     _id: id,
@@ -36,6 +48,9 @@ module.exports.edit = async (req, res) => {
 }
 
 module.exports.editPatch = async (req, res) => {
+  if(!res.locals.role.permissions.includes("roles_edit")){
+    return
+  }
   const id = req.params.id
   await Role.updateOne({
     _id: id,
@@ -46,6 +61,9 @@ module.exports.editPatch = async (req, res) => {
 }
 
 module.exports.permissions = async (req, res) => {
+  if(!res.locals.role.permissions.includes("roles_view")){
+    return
+  }
   const records = await Role.find({
     deleted: false
   })
@@ -56,7 +74,9 @@ module.exports.permissions = async (req, res) => {
 }
 
 module.exports.permissionsPatch = async (req, res) => {
-  console.log(req.body)
+  if(!res.locals.role.permissions.includes("roles_edit")){
+    return
+  }
   req.body.forEach(async item => {
     await Role.updateOne({
       _id: item.id

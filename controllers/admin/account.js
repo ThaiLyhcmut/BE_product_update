@@ -5,6 +5,9 @@ const Account = require("../../models/account_model")
 const systemConfig = require("../../config/system")
 
 module.exports.index = async (req, res) => {
+  if(!res.locals.role.permissions.includes("roles_account_view")){
+    return
+  }
   const records = await Account.find({
     deleted: false
   })
@@ -32,6 +35,9 @@ module.exports.create = async (req, res) => {
 }
 
 module.exports.createPost = async (req, res) => {
+  if(!res.locals.role.permissions.includes("roles_account_edit")){
+    return ;
+  }
   req.body.password = md5(req.body.password)
   req.body.token = generate.generateRandomString(30)
   const account = new Account(req.body)
@@ -55,6 +61,9 @@ module.exports.edit = async (req, res) => {
 }
 
 module.exports.editPatch = async (req, res) => {
+  if(!res.locals.role.permissions.includes("roles_account_view")){
+    return
+  }
   await Account.updateOne({
     _id: req.params.id,
     deleted: false
@@ -75,9 +84,21 @@ module.exports.changePassword = async (req, res) => {
 }
 
 module.exports.changePasswordPost = async (req, res) => {
+  if(!res.locals.role.permissions.includes("roles_account_view")){
+    return
+  }
   req.body.password = md5(req.body.password)
   account = await Account.updateOne({
     _id: req.params.id
   },req.body)
   res.redirect(`${systemConfig.prefixAdmin}/account`)
+}
+
+module.exports.myprofile = async (req, res) => {
+  if(!res.locals.user){
+    return 
+  }
+  res.render("admin/pages/account/myprofile", {
+    Pagetitle: "Thong tin ca nhan",
+  })
 }

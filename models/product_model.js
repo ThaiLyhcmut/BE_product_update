@@ -17,6 +17,10 @@ const ProductScheme = new mongoose.Schema({
   thumbnail: String,
   status: String,
   position: Number,
+  createAt: Date,
+  updateAt: Date,
+  createBy: String,
+  updateBy: String,
   deleted: Boolean
 })
 

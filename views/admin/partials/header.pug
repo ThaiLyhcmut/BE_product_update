@@ -6,6 +6,10 @@ header.header
           a(href=`${prefixAdmin}/dashboarh`) ADMIN 
       .col-9.text-right
         a(
-          href=`/${prefixAdmin}/auth/logout`
+          href=`${prefixAdmin}/account/myprofile`
+          class="btn btn-success btn-sm mr-2"
+        ) #{user.fullName}
+        a(
+          href=`${prefixAdmin}/auth/logout`
           class="btn btn-danger btn-sm"
         ) Đăng xuất

@@ -1,4 +1,7 @@
 extends ../../layouts/default.pug
 
 block main 
-  h1 Xin chao
+  h1 Xin chao #{user.fullName}
+  h2 #{role.title}
+  br
+  div #{role.permissions}

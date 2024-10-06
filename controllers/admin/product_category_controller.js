@@ -1,6 +1,9 @@
 const ProductCategory = require("../../models/product-category")
 const systemConfig = require("../../config/system")
 module.exports.index = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products-category_view")){
+    return
+  }
   const listCategory = await ProductCategory.find({
     deleted: false
   })
@@ -11,6 +14,9 @@ module.exports.index = async (req, res) => {
 }
 
 module.exports.create = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products-category_create")){
+    return
+  }
   const listCategory = await ProductCategory.find({
     deleted: false
   })
@@ -22,6 +28,9 @@ module.exports.create = async (req, res) => {
 
 
 module.exports.createPost = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products-category_create")){
+    return
+  }
   if(!req.body.position){
     const countRecord = await ProductCategory.countDocuments();
     req.body.position = countRecord + 1
@@ -54,6 +63,9 @@ module.exports.edit = async (req, res) => {
 
 
 module.exports.editPatch = async (req, res) => {
+  if(!res.locals.role.permissions.includes("products-category_edit")){
+    return
+  }
   const id = req.params.id
   if(req.body.position){
     req.body.position = parseInt(req.body.position)
@@ -68,8 +80,4 @@ module.exports.editPatch = async (req, res) => {
   }, req.body)
   req.flash("success", "cap nhat thanh cong")
   res.redirect(`back`)
-  // const record = new ProductCategory(req.body)
-  // await record.save()
-
-  // res.redirect(`${systemConfig.prefixAdmin}/products-category`)
 }
