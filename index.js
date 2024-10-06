@@ -11,7 +11,6 @@ const session = require('express-session')
 const flash = require('express-flash')
 const app = express()
 const path = require("path")
-
 app.use(methodOverride('_method'))
 
 // bien toan cuc
