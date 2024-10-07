@@ -207,7 +207,6 @@ module.exports.editPatch = async (req, res) => {
   req.body.position = parseInt(req.body.position)
   req.body.updateAt = new Date()
   req.body.updateBy = res.locals.user.id
-  console.log(req.body)
   const id = req.params.id
   await Product.updateOne({
     _id: id,

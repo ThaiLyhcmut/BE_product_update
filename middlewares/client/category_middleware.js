@@ -1,9 +1,12 @@
 const ProductCategory = require("../../models/product-category")
+const createTree = require("../../helper/createtree_helper")
 module.exports.category = async (req, res, next) => {
   const category_product = await ProductCategory.find({
     deleted: false,
     status: "active"
   })
-  console.log(category_product)
+  const allCategory = createTree.getAllcategory(category_product)
+  console.log(allCategory)
+  res.locals.allCategory = allCategory;
   next();
 }

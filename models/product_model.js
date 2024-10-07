@@ -21,6 +21,10 @@ const ProductScheme = new mongoose.Schema({
   updateAt: Date,
   createBy: String,
   updateBy: String,
+  featured: {
+    type: String,
+    default: "0"
+  },
   deleted: Boolean
 })
 

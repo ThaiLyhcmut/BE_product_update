@@ -1,3 +1,4 @@
+include ../mixins/sub-category.pug
 header.header 
   .container 
     .row.align-items-center 
@@ -10,6 +11,6 @@ header.header
           ul
             li
               a(href="/") Trang chu
-            //- li(class="sub-menu")
-            //-   a(href="/products") Sản phẩm
-            //-   +sub-category(allCategory)
+            li(class="sub-menu")
+              a(href="/products") Sản phẩm
+              +sub-category(allCategory)
