@@ -1,8 +1,8 @@
 extends ../../layouts/default.pug
 
 block main 
-if(role.permissions.includes("products-category_edit"))
-  h1 #{Pagetitle}
+  if(role.permissions.includes("products-category_edit"))
+    h1 #{Pagetitle}
     form(
       action=`${prefixAdmin}/products-category/create`
       method="POST"

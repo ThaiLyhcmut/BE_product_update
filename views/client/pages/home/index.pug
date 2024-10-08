@@ -1,4 +1,25 @@
 extends ../../layouts/default.pug
-
+include ../../mixins/box-head.pug
+include ../../mixins/product-item.pug
 block main 
-  h1 Trang chu
+  .container.my-3 
+    .row
+      .col-12 
+        +box-head("Danh sach nổi bật")
+    .row 
+      each item in productFeatured
+        +product-item(item)
+  .container.my-3 
+    .row
+      .col-12 
+        +box-head("Danh sach san pham mới")
+    .row 
+      each item in productNew
+        +product-item(item)
+  .container.my-3 
+    .row
+      .col-12 
+        +box-head("Danh sach san pham giảm giá nhiều")
+    .row 
+      each item in productDiscount
+        +product-item(item)

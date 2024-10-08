@@ -5,6 +5,7 @@ const router = express.Router()
 // đường dẫn con
 router.get("/", product_controller.index)
 router.get("/detail/:slug", product_controller.detail)
+router.get("/:slugCategory", product_controller.category)
 
 // exports các đường dẫn con
 module.exports = router

@@ -1,3 +1,4 @@
+const Product = require("../models/product_model");
 
 const createTree = (array, parentID = "") => {
   const newArray = []
@@ -18,3 +19,4 @@ module.exports.getAllcategory = (array, parentID = "") => {
   const tree = createTree(array, parentID);
   return tree
 }
+

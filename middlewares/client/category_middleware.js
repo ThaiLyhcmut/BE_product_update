@@ -6,7 +6,6 @@ module.exports.category = async (req, res, next) => {
     status: "active"
   })
   const allCategory = createTree.getAllcategory(category_product)
-  console.log(allCategory)
   res.locals.allCategory = allCategory;
   next();
 }

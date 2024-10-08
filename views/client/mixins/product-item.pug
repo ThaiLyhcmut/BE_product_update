@@ -1,0 +1,13 @@
+mixin product-item(item)
+  .col-3.mb-3 
+    .product-item 
+      .inner-image 
+        a(href=`/products/detail/${item.slug}`) 
+          img(src=item.thumbnail, alt=item.title)
+      .inner-content 
+        a(href=`/products/detail/${item.slug}`) 
+          h3.inner-title #{item.title}
+        p.inner-desc #{item.description}
+        .inner-price-new #{(item.price*(1-item.discountPercentage/100)).toFixed(2)}$
+        .inner-price-old #{item.price}$
+        .inner-discount #{item.discountPercentage}%
