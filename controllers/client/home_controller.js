@@ -29,7 +29,6 @@ module.exports.index = async (req, res) => {
   productDiscount.forEach(item => {
     item.priceNew = ((1 - item.discountPercentage/100)*item.price).toFixed(0)
   })
-  console.log(productFeatured)
   res.render("client/pages/home/index", {
     Pagetitle: "Trang chu",
     productFeatured: productFeatured,
