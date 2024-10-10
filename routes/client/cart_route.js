@@ -8,6 +8,8 @@ router.get("/", controller.index)
 
 router.get("/delete/:id", controller.deleted)
 
+router.patch("/update", controller.update)
+
 router.post("/add/:id", controller.addPost)
 
 

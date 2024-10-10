@@ -63,3 +63,23 @@ module.exports.deleted = async (req, res) => {
   })
   res.redirect("back")
 }
+
+
+module.exports.update = async (req, res) => {
+  const product = req.body
+  const cartId = req.cookies.cartId
+  const cart = await Cart.findOne({
+    _id: cartId
+  })
+  const ProductUpdate = (cart.products).find(item => item.productID == product.productID)
+  ProductUpdate.quantity = parseInt(product.quantity)
+  await Cart.updateOne({
+    _id: cartId
+  }, {
+    products: cart.products
+  })
+  res.json({
+    code: "Success",
+    massage: "Cap nhat thanh cong"
+  })
+}

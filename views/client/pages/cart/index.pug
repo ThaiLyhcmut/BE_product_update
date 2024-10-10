@@ -8,7 +8,7 @@ block main
     .row
       .col-12
         if(products.length > 0)
-          table(class="table table-bordered")
+          table(class="table table-bordered" table-cart)
             thead
               tr
                 th STT
@@ -33,7 +33,7 @@ block main
                       name="quantity"
                       value=item.quantity
                       min="1"
-                      item-id=item.productId
+                      item-id=item.productID
                       style="width: 60px"
                     )
                   td #{item.total}$
@@ -46,7 +46,7 @@ block main
           h3(class="text-right") Tổng đơn hàng: #{total.toLocaleString()}$
           
           div(class="text-right mt-3")
-            a(href="/checkout" class="btn btn-success") Đặt hàng
+            a(href="/order" class="btn btn-success") Đặt hàng
         else
           p
             i Không có sản phẩm nào trong giỏ hàng.
