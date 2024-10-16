@@ -1,6 +1,8 @@
 const User = require("../../models/user_model")
 const md5 = require("md5")
 const generateHelper = require("../../helper/generate_helper")
+const sendMailHelper = require("../../helper/sendMail_helper")
+const ForgotPassword = require("../../models/forgot-password")
 module.exports.register = (req, res) => {
   res.render("client/pages/user/register")
 }
@@ -69,3 +71,91 @@ module.exports.logout = async (req, res) => {
   req.flash("success", "Đã đăng xuất!");
   res.redirect("/");
 };
+
+
+module.exports.forgotPassword = (req, res) => {
+  res.render("client/pages/user/forgot-password", {
+    Pagetitle: "Lay lai mat khau"
+  })
+}
+
+
+module.exports.forgotPasswordPost = async (req, res) => {
+  const email = req.body.email
+  console.log(email)
+  const exisUser = await User.findOne({
+    email: email,
+    status: "active",
+    deleted: false
+  })
+  if(!exisUser){
+    req.flash("error", "Email khong ton tai")
+    res.redirect("back")
+    return;
+  }
+  const exisEmail = await ForgotPassword.findOne({
+    email: email
+  })
+  if(exisEmail){
+    req.flash("error", "OTP da duoc gui truoc do")
+    res.redirect(`/user/password/otp?email=${email}`)
+    return;
+  }
+  const otp = generateHelper.generateRandomNumber(6)
+  const data = {
+    email: email,
+    otp: otp,
+    expireAt: Date.now() + 5*60*1000
+  }
+  const record = new ForgotPassword(data)
+  await record.save()
+  const subject = "Xac thuc ma OTP"
+  const text = `Ma xac thuc cua ban la <b>${otp}</b>. Ma OTP co hieu luc trong 5 phut. Vui long khong cung cap ma OTP cho bat ky ai`
+  sendMailHelper.sendMail(email, subject, text)
+  req.flash("success", "OTP da gui va ton tai trong vong 60 giay")
+  res.redirect(`/user/password/otp?email=${email}`)
+}
+
+
+module.exports.otpPassword = (req, res) => {
+  const email = req.query.email
+  res.render("client/pages/user/otp-password", {
+    Pagetitle: "Xac thuc otp",
+    email: email
+  })
+}
+
+module.exports.otpPasswordPost = async (req, res) => {
+  const exisRecord = await ForgotPassword.findOne(req.body)
+  if(!exisRecord){
+    req.flash("error", "Ma OTP khong hop le")
+    res.redirect("back")
+    return
+  }
+  const user = await User.findOne({
+    email: req.body.email
+  })
+  await ForgotPassword.deleteOne({
+    email: req.body.email
+  })
+  res.cookie("tokenUser", user.token)
+  res.redirect("/user/password/reset")
+}
+
+module.exports.reset = (req, res) => {
+  res.render("client/pages/user/reset", {
+    Pagetitle: "Doi mat khau"
+  })
+}
+module.exports.resetPost = async (req, res) => {
+  const tokenUser = req.cookies.tokenUser
+  await User.updateOne({
+    token: tokenUser,
+    status: "active",
+    deleted: false
+  }, {
+    password: md5(req.body.password)
+  })
+  req.flash("success", "doi mat khau thanh cong")
+  res.redirect("/")
+}

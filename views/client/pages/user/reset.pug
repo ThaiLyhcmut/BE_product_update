@@ -1,24 +1,16 @@
+
 extends ../../layouts/default.pug
 block main
   .container.my-5
     .row.justify-content-center
       .col-8
-        h1(class="text-center") #{Pagetitle}
+        h1(class="text-center") Đăng nhập
         form(
-          action="/user/login"
+          action="/user/password/reset"
           method="POST"
         )
           div(class="form-group")
-            label(for="email") Email
-            input(
-              type="email"
-              class="form-control"
-              id="email"
-              name="email"
-              required
-            )
-          div(class="form-group")
-            label(for="password") Mật khẩu
+            label(for="password") Doi mat khau
             input(
               type="password"
               class="form-control"
@@ -30,5 +22,4 @@ block main
             button(
               type="submit"
               class="btn btn-primary btn-block"
-            ) Đăng nhập
-        a(href="/user/password/forgot") Quen mat khau 
+            ) Doi mat khau
