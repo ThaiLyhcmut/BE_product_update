@@ -14,6 +14,7 @@ block main
                 if(user.id != chat.userId)
                   .inner-name #{chat.fullName}
                 .inner-content #{chat.content}
+            div(class="inner-list-typing")
           .inner-foot
             form(
                 class="inner-form"
@@ -24,5 +25,11 @@ block main
                   placeholder="Nhập nội dung..."
                   name="content"
                 )
+                
+                .div
+                  <button button-tolltop>Click me</button>
+                  <div class="tooltipA">
+                    <emoji-picker class="dark has-custom"></emoji-picker>
+                  </div>
                 button
                   i.fa-solid.fa-paper-plane

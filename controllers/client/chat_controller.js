@@ -20,6 +20,13 @@ module.exports.index = async (req, res) => {
         content: data.content
       })
     })
+    socket.on("CLIENT_SEND_TYPING", (type) => {
+      socket.broadcast.emit("SERVER_RETURN_TYPING", {
+        userId: res.locals.user.id,
+        fullName: res.locals.user.fullName,
+        type: type
+      })
+    })
   })
 
   // lay tin nhan mac dinh
