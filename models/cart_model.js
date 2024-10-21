@@ -10,5 +10,8 @@ const CartSchema = new mongoose.Schema({
   timeseries: true
 })
 
+CartSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
+
+
 const Cart = mongoose.model("Cart", CartSchema, "carts")
 module.exports = Cart

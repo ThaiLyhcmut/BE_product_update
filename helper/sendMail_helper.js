@@ -13,7 +13,7 @@ module.exports.sendMail = (email, subject, text) => {
   
   // Configure the mailoptions object
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: `"ThaiLy" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: subject,
     html: text

@@ -1,5 +1,4 @@
-const mongoose = require("mongoose")
-
+const mongoose = require("mongoose");
 
 const forgotPasswordSchema = new mongoose.Schema(
   {
@@ -7,7 +6,9 @@ const forgotPasswordSchema = new mongoose.Schema(
     otp: String,
     expireAt: {
       type: Date,
-      expireAt: 0
+      required: true,
+      // Cần một giá trị thời gian mặc định cho expireAt, ví dụ:
+      default: () => new Date(Date.now() + 30 * 1000) // Hết hạn sau 30 phút
     }
   },
   {
@@ -15,10 +16,13 @@ const forgotPasswordSchema = new mongoose.Schema(
   }
 );
 
+// Tạo chỉ mục TTL cho expireAt
+forgotPasswordSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
+
 const ForgotPassword = mongoose.model(
   "ForgotPassword",
   forgotPasswordSchema,
   "forgot-password"
-)
+);
 
-module.exports = ForgotPassword
+module.exports = ForgotPassword;
