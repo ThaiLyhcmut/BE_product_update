@@ -13,7 +13,12 @@ block main
               div(class=(user.id != chat.userId?"inner-incoming":"inner-outgoing"))
                 if(user.id != chat.userId)
                   .inner-name #{chat.fullName}
-                .inner-content #{chat.content}
+                if(chat.content)
+                  .inner-content #{chat.content}
+                if(chat.images)
+                  .inner-images 
+                    each image in chat.images 
+                      img(src=image)
             div(class="inner-list-typing")
           .inner-foot
             form(
@@ -27,9 +32,15 @@ block main
                 )
                 
                 .div
-                  <button button-tolltop>Click me</button>
+                  <button type="button" button-tolltop><i class="fa-regular fa-face-smile"></i></button>
                   <div class="tooltipA">
                     <emoji-picker class="dark has-custom"></emoji-picker>
                   </div>
+                label(
+                  class="btn btn-light mx-1"
+                  for="file-upload-with-preview-upload-images"
+                ) <i class="fa-regular fa-images"></i>
                 button
                   i.fa-solid.fa-paper-plane
+          .inner-preview-images 
+            <div class="custom-file-container" data-upload-id="upload-images"></div>

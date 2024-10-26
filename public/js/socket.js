@@ -1,22 +1,29 @@
 var socket = io()
 import * as Popper from 'https://cdn.jsdelivr.net/npm/@popperjs/core@^2/dist/esm/index.js'
 const elementListTyping = document.querySelector(".chat .inner-list-typing")
+const formChat = document.querySelector(".chat .inner-form");
+
+// upload images
 
 
 // CLIENT_SEND_MESSAGE
-const formChat = document.querySelector(".chat .inner-form");
 if(formChat){
-  console.log(formChat)
+  const upload = new FileUploadWithPreview.FileUploadWithPreview('upload-images', {
+    multiple: true,
+    maxFileCount: 6
+  })
   formChat.addEventListener("submit", (event) => {
     event.preventDefault()
+    const images = upload.cachedFileArray || []
     const content = formChat.content.value;
-    console.log(content)
-    if(content){
+    if(content || images.length > 0){
       const data = {
         content: content,
+        images: images
       }
       socket.emit("CLIEND_SEND_MASSAGE", data)
       formChat.content.value = ""
+      upload.resetPreviewPanel()
     }
   })
   const button = formChat.querySelector('[button-tolltop]')
@@ -34,19 +41,40 @@ socket.on("SERVER_RETURN_MASSAGE", (data) => {
   const body = document.querySelector(".chat .inner-body");
   const div = document.createElement("div")
   const id = document.querySelector(".chat").getAttribute("user-id")
+  let htmlFullName = ""
   if(id != data.userId){
     div.classList.add("inner-incoming")
-    div.innerHTML = `
+    htmlFullName = `
       <div class="inner-name">${data.fullName}</div>
-      <div class="inner-content">${data.content}</div>
     `
   } 
   else{
     div.classList.add("inner-outgoing")
-    div.innerHTML = `
+  }
+
+  let htmlContent = ""
+  if (data.content) {
+    htmlContent = `
       <div class="inner-content">${data.content}</div>
     `
   }
+
+  let htmlImages = ""
+  if (data.images.length > 0) {
+    htmlImages +=`<div class="inner-images ">`
+    for (const src of data.images) {
+      htmlImages += `
+        <img src="${src}"/>
+      `
+    }
+    htmlImages += `</div>`
+  }
+
+  div.innerHTML = `
+    ${htmlFullName}
+    ${htmlContent}
+    ${htmlImages}
+  `
   socket.emit("CLIENT_SEND_TYPING", false);
   body.insertBefore(div, elementListTyping)
   body.scrollTop = body.scrollHeight

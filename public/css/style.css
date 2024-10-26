@@ -254,6 +254,23 @@
   cursor: pointer;
 }
 
+.chat .inner-body .inner-images img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  background: #efefef;
+  padding: 10px;
+  margin: 0 5px 5px 0;
+  border-radius: 5px;
+}
+.chat .inner-body .inner-outgoing .inner-images {
+  margin-left: auto;
+  text-align: right;
+}
+.chat .inner-body .inner-outgoing .inner-images img {
+  margin: 0 0 5px 5px;
+}
+
 .tooltipA {
   display: none;
   overflow: hidden;
@@ -306,3 +323,21 @@
  }
 }
 /* End box-typing */
+.chat .inner-preview-images {
+  position: relative;
+}
+.chat .inner-preview-images .label-container {
+  display: none;
+}
+.chat .inner-preview-images .input-container {
+  display: none;
+}
+.chat .inner-preview-images .image-preview {
+  height: auto;
+  padding: 0;
+  border-radius: 0;
+}
+.chat .inner-preview-images .image-preview-item {
+  width: 90px;
+  background-size: contain;
+}
