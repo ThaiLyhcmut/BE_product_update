@@ -158,3 +158,19 @@ module.exports.resetPost = async (req, res) => {
   req.flash("success", "doi mat khau thanh cong")
   res.redirect("/")
 }
+
+
+module.exports.notFriend = async (req, res) => {
+  const userId = res.locals.user.id
+  const users = await User.find({
+    _id: {
+      $ne: userId
+    },
+    deleted: false,
+    status: "active"
+  }).select("fullName avatar id")
+  res.render("client/pages/user/not-friend", {
+    Pagetitle: "Dang sach nguoi dung",
+    users: users
+  })
+}

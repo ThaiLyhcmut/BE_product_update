@@ -2,7 +2,6 @@ var socket = io()
 import * as Popper from 'https://cdn.jsdelivr.net/npm/@popperjs/core@^2/dist/esm/index.js'
 const elementListTyping = document.querySelector(".chat .inner-list-typing")
 const formChat = document.querySelector(".chat .inner-form");
-
 // upload images
 
 
@@ -78,12 +77,15 @@ socket.on("SERVER_RETURN_MASSAGE", (data) => {
   socket.emit("CLIENT_SEND_TYPING", false);
   body.insertBefore(div, elementListTyping)
   body.scrollTop = body.scrollHeight
+  new Viewer(div)
 })
 
 
 const bodyChat = document.querySelector(".chat .inner-body")
 if(bodyChat){
   bodyChat.scrollTop = bodyChat.scrollHeight
+  // ViewerJS
+  new Viewer(bodyChat)
 }
 
 
@@ -130,3 +132,5 @@ if(elementListTyping){
     bodyChat.scrollTop = bodyChat.scrollHeight
   })
 }
+
+

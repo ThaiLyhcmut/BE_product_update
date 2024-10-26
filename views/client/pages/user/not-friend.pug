@@ -1,0 +1,28 @@
+extends ../../layouts/default.pug
+include ../../mixins/box-head.pug
+block main
+  .container.my-3
+    include ../../partials/list-btn-users.pug
+    .row
+      .col-12
+        +box-head(pageTitle)
+    .row
+      each item in users
+        .col-4
+          div(class="box-user")
+            div(class="inner-avatar")
+              img(
+                src="https://robohash.org/hicveldicta.png"
+                alt=item.fullName
+              )
+            div(class="inner-info")
+              div(class="inner-name") #{item.fullName}
+              div(class="inner-buttons")
+                button(
+                  class="btn btn-sm btn-primary mr-1"
+                  btn-add-friend=item.id
+                ) Kết bạn
+                button(
+                  class="btn btn-sm btn-secondary mr-1"
+                  btn-cancel-friend=item.id
+                ) Hủy
