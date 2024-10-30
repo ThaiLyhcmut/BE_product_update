@@ -34,4 +34,23 @@ router.get(
   middleware.requireAuth,
   controller.friend
 )
+
+router.get(
+  "/rooms",
+  middleware.requireAuth,
+  controller.rooms
+)
+
+router.get(
+  "/rooms/create",
+  middleware.requireAuth,
+  controller.createRoom
+)
+
+router.post(
+  "/rooms/create",
+  middleware.requireAuth,
+  controller.createRoomPost
+)
+
 module.exports = router

@@ -4,6 +4,7 @@ const generateHelper = require("../../helper/generate_helper")
 const sendMailHelper = require("../../helper/sendMail_helper")
 const ForgotPassword = require("../../models/forgot-password")
 const UserSocket = require("../../sockets/client/user_socket")
+const RoomChat = require("../../models/rooms-chat_modle")
 module.exports.register = (req, res) => {
   res.render("client/pages/user/register")
 }
@@ -260,3 +261,50 @@ module.exports.friend = async (req, res) => {
   })
 }
 
+module.exports.rooms = async (req, res) => {
+  const listRoomChat = await RoomChat.find({
+    "users.userId": res.locals.user.id,
+    typeRoom: "group",
+    deleted: false
+  });
+  res.render("client/pages/user/rooms", {
+    pageTitle: "Phòng chat",
+    listRoomChat: listRoomChat
+  });
+}
+
+module.exports.createRoom = async (req, res) => {
+  const friendsList = await User.find({
+    _id: {
+      $in: res.locals.user.FriendList.map(item => item.userId)
+    },
+    deleted: false,
+    status: "active"
+  }).select("fullName id")
+  res.render("client/pages/user/create-room", {
+    Pagetitle: "Tao phong chat",
+    friendsList: friendsList
+  })
+}
+
+module.exports.createRoomPost = async (req, res) => {
+  const title = req.body.title
+  const usersId = req.body.usersId
+  const newRoom = new RoomChat({
+    title: title,
+    typeRoom: "group",
+    users: []
+  })
+  newRoom.users.push({
+    userId: res.locals.user.id,
+    role: "superAdmin"
+  })
+  for (const user of usersId){
+    newRoom.users.push({
+      userId: user,
+      role: "membership"
+    })
+  }
+  await newRoom.save()
+  res.redirect(`/chat/${newRoom.id}`)
+}
