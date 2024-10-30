@@ -49,7 +49,6 @@ module.exports.loginPost = async (req, res) => {
     res.redirect("back");
     return;
   }
-  console.log(md5(req.body.password), user.password)
   if(md5(req.body.password) != user.password) {
     req.flash("error", "Sai mật khẩu!");
     res.redirect("back");
@@ -82,7 +81,6 @@ module.exports.forgotPassword = (req, res) => {
 
 module.exports.forgotPasswordPost = async (req, res) => {
   const email = req.body.email
-  console.log(email)
   const exisUser = await User.findOne({
     email: email,
     status: "active",
@@ -159,13 +157,71 @@ module.exports.resetPost = async (req, res) => {
   res.redirect("/")
 }
 
-
 module.exports.notFriend = async (req, res) => {
-  const userId = res.locals.user.id
+  const userIdA = res.locals.user.id
+
+  _io.once("connection", (socket) => {
+    socket.on("CLIEND_ADD_FRIEND",async (userIdB) => {
+      // them idA -> userB
+      const exitsAinB = await User.findOne({
+        _id: userIdB,
+        acceptFriends: userIdA
+      });
+      if(!exitsAinB){
+        await User.updateOne({
+          _id: userIdB
+        },{
+          $push: {
+            acceptFriends: userIdA
+          }
+        })
+      }
+      // them idB -> userA
+      const exitsBinA = await User.findOne({
+        _id: userIdA,
+        requestFriends: userIdB
+      })
+      if(!exitsBinA){
+        await User.updateOne({
+          _id: userIdA
+        },{
+          $push: {
+            requestFriends: userIdB
+          }
+        })
+      }
+      // tra ve cho B so luong user can chap nhan
+      const userB = await User.findOne({
+        _id: userIdB,
+        deleted: false,
+        status: "active"
+      })
+    _io.emit("SERVER_RETURN_LENGTH_ACCEPT_PRIEND", {
+      userIdB: userIdB,
+      length: userB.acceptFriends.length
+    })
+    })
+  })
   const users = await User.find({
-    _id: {
-      $ne: userId
-    },
+    $and: [
+      {
+        _id: {
+          $ne: userIdA
+        }
+      }, {
+        _id: {
+          $nin: res.locals.user.acceptFriends
+        }
+      },{
+        _id: {
+          $nin: res.locals.user.requestFriends
+        }
+      },{
+        _id: {
+          $nin: res.locals.user.FriendList.map(item => item.userId)
+        }
+      }
+    ],
     deleted: false,
     status: "active"
   }).select("fullName avatar id")
@@ -174,3 +230,165 @@ module.exports.notFriend = async (req, res) => {
     users: users
   })
 }
+
+module.exports.request = async (req, res) => {
+  const userIdA = res.locals.user.id
+
+  _io.once("connection", (socket) => {
+    socket.on("CLIEND_CANCEL_FRIEND",async (userIdB) => {
+      // xoa idA -> userB accept
+      const exitsAinB = await User.findOne({
+        _id: userIdB,
+        acceptFriends: userIdA
+      });
+      if(exitsAinB){
+        await User.updateOne({
+          _id: userIdB
+        },{
+          $pull: {
+            acceptFriends: userIdA
+          }
+        })
+      }
+      // xoa idB -> userA request
+      const exitsBinA = await User.findOne({
+        _id: userIdA,
+        requestFriends: userIdB
+      })
+      if(exitsBinA){
+        await User.updateOne({
+          _id: userIdA
+        },{
+          $pull: {
+            requestFriends: userIdB
+          }
+        })
+      }
+
+    })
+  })
+  const users = await User.find({
+    _id:{
+      $in :res.locals.user.requestFriends
+    },
+    deleted: false,
+    status: "active"
+  }).select("fullName avatar id")
+  res.render("client/pages/user/request", {
+    Pagetitle: "Dang sach loi moi da gui",
+    users: users
+  })
+}
+
+module.exports.accept = async (req, res) => {
+  const userIdA = res.locals.user.id
+
+  _io.once("connection", (socket) => {
+    socket.on("CLIEND_REFUSE_FRIEND",async (userIdB) => {
+      // xoa idB -> userA accept
+      const exitsBinA = await User.findOne({
+        _id: userIdA,
+        acceptFriends: userIdB
+      });
+      if(exitsBinA){
+        await User.updateOne({
+          _id: userIdA
+        },{
+          $pull: {
+            acceptFriends: userIdB
+          }
+        })
+      }
+      // xoa idA -> userB request
+      const exitsAinB = await User.findOne({
+        _id: userIdB,
+        requestFriends: userIdA
+      })
+      if(exitsAinB){
+        await User.updateOne({
+          _id: userIdB
+        },{
+          $pull: {
+            requestFriends: userIdA
+          }
+        })
+      }
+    })
+    socket.on("CLIEND_ACCEPT_FRIEND",async (userIdB) => {
+      // them { userIdB, roomchatID } -> friendsListA
+      // xoa idB -> acceptFriendsA
+      const exitsBinA = await User.findOne({
+        _id: userIdA,
+        acceptFriends: userIdB
+      });
+      if(exitsBinA){
+        await User.updateOne({
+          _id: userIdA
+        },{
+          $pull: {
+            acceptFriends: userIdB
+          },
+          $push: {
+            FriendList: {
+              userId: userIdB,
+              roomChatId: ""
+            }
+          }
+        })
+      }
+      // them { userIdB, roomchatID } -> friendsListA
+
+      // xoa idB -> acceptFriendsA
+      const exitsAinB = await User.findOne({
+        _id: userIdB,
+        requestFriends: userIdA
+      })
+      if(exitsAinB){
+        await User.updateOne({
+          _id: userIdB
+        },{
+          $pull: {
+            requestFriends: userIdA
+          },
+          $push: {
+            FriendList: {
+              userId: userIdA,
+              roomChatId: ""
+            }
+          }
+        })
+      }
+    })
+  })
+  const users = await User.find({
+    _id:{
+      $in :res.locals.user.acceptFriends
+    },
+    deleted: false,
+    status: "active"
+  }).select("fullName avatar id")
+  res.render("client/pages/user/accept", {
+    Pagetitle: "Dang sach loi moi da nhan",
+    users: users
+  })
+}
+
+module.exports.friend = async (req, res) => {
+  const userIdA = res.locals.user.id
+
+  _io.once("connection", (socket) => {
+    
+  })
+  const users = await User.find({
+    _id:{
+      $in :res.locals.user.FriendList.map(item => item.userId)
+    },
+    deleted: false,
+    status: "active"
+  }).select("fullName avatar id")
+  res.render("client/pages/user/friends", {
+    Pagetitle: "Dang sach loi moi da nhan",
+    users: users
+  })
+}
+

@@ -19,4 +19,19 @@ router.get(
   middleware.requireAuth,
   controller.notFriend
 )
+router.get(
+  "/request",
+  middleware.requireAuth,
+  controller.request
+)
+router.get(
+  "/accept",
+  middleware.requireAuth,
+  controller.accept
+)
+router.get(
+  "/friends",
+  middleware.requireAuth,
+  controller.friend
+)
 module.exports = router

@@ -16,3 +16,6 @@
       class="btn btn-primary m-1"
       href="/user/accept"
     ) Lời mời đã nhận
+      span.badge.badge-danger.ml-1(
+        badge-user-accept=user.id
+      ) #{user.acceptFriends.length}
