@@ -173,7 +173,6 @@ if(listBtnAcceptedFriend.length > 0) {
 
 socket.on("SERVER_RETURN_LENGTH_ACCEPT_PRIEND", data => {
   const bagdeUserAccept = document.querySelector(`[badge-user-accept="${data.userIdB}"]`)
-  console.log(bagdeUserAccept)
   if(bagdeUserAccept){
     bagdeUserAccept.innerHTML=data.length;
   }
