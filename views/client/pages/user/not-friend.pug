@@ -6,9 +6,9 @@ block main
     .row
       .col-12
         +box-head(pageTitle)
-    .row
+    .row(list-not-friends=user.id)
       each item in users
-        .col-4
+        .col-4(user-id=item.id)
           div(class="box-user")
             div(class="inner-avatar")
               img(

@@ -6,7 +6,7 @@ block main
     .row
       .col-12
         +box-head(pageTitle)
-    .row
+    .row(list-accept-friends=user.id)
       each item in users
         .col-4
           div(class="box-user add")

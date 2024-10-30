@@ -149,9 +149,8 @@ if(listBtnCancelFriend.length > 0) {
   });
 }
 
-const listBtnRefuseFriend = document.querySelectorAll("[btn-refuse-friend]")
-if(listBtnRefuseFriend.length > 0) {
-  listBtnRefuseFriend.forEach(button => {
+const refuse = (listuser) => {
+  listuser.forEach(button => {
     button.addEventListener("click", () => {
       const userIdB = button.getAttribute("btn-refuse-friend");
       button.closest(".box-user").classList.add("refuse")
@@ -160,15 +159,24 @@ if(listBtnRefuseFriend.length > 0) {
   });
 }
 
-const listBtnAcceptedFriend = document.querySelectorAll("[btn-accept-friend]")
-if(listBtnAcceptedFriend.length > 0) {
-  listBtnAcceptedFriend.forEach(button => {
+const listBtnRefuseFriend = document.querySelectorAll("[btn-refuse-friend]")
+if(listBtnRefuseFriend.length > 0) {
+  refuse(listBtnRefuseFriend)
+}
+
+const accept = (listuser) => {
+  listuser.forEach(button => {
     button.addEventListener("click", () => {
       const userIdB = button.getAttribute("btn-accept-friend");
       button.closest(".box-user").classList.add("accepted")
       socket.emit("CLIEND_ACCEPT_FRIEND", userIdB)
     })
   });
+} 
+
+const listBtnAcceptedFriend = document.querySelectorAll("[btn-accept-friend]")
+if(listBtnAcceptedFriend.length > 0) {
+  accept(listBtnAcceptedFriend)
 }
 
 socket.on("SERVER_RETURN_LENGTH_ACCEPT_PRIEND", data => {
@@ -178,3 +186,83 @@ socket.on("SERVER_RETURN_LENGTH_ACCEPT_PRIEND", data => {
   }
 })
 
+socket.on("SERVER_RETURN_INFO_ACCEPT_PRIEND", data => {
+  const listUserAccept = document.querySelector(`[list-accept-friends="${data.userIdB}"]`)
+  // them A vao danh sach loi moi da nhan cua B
+  if(listUserAccept){
+    const div = document.createElement("div")
+    div.classList.add("col-4")
+    div.setAttribute("user-id", data.userIdA)
+    div.innerHTML = `
+      <div class="box-user add">
+        <div class="inner-avatar">
+          <img 
+            src="https://robohash.org/hicveldicta.png" 
+            alt="${data.fullNameA}" 
+          />
+        </div>
+        <div class="inner-info">
+          <div class="inner-name">${data.fullNameA}</div>
+          <div class="inner-buttons">
+            <button 
+              class="btn btn-sm btn-primary mr-1" 
+              btn-accept-friend="${data.userIdA}">
+              Chấp nhận
+            </button>
+            <button 
+              class="btn btn-sm btn-secondary mr-1" 
+              btn-refuse-friend="${data.userIdA}">
+              Xóa
+            </button>
+            <button 
+              class="btn btn-sm btn-secondary mr-1" 
+              btn-deleted-friend 
+              disabled>
+              Đã xóa
+            </button>
+            <button 
+              class="btn btn-sm btn-secondary mr-1" 
+              btn-accepted-friend 
+              disabled>
+              Đã chấp nhận
+            </button>
+          </div>
+        </div>
+      </div>
+    `
+    listUserAccept.appendChild(div)
+    accept(div.querySelectorAll("[btn-accept-friend]"))
+    refuse(div.querySelectorAll("[btn-refuse-friend]"))
+    // chap nhan ket ban
+  }
+  // xoa A khoi danh sach nguoi dung cua B
+  const listNotFriends = document.querySelector(`[list-not-friends="${data.userIdB}"]`)
+  if(listNotFriends){
+    const user = listNotFriends.querySelector(`[user-id="${data.userIdA}"]`)
+    if(user){
+      listNotFriends.removeChild(user)
+    }
+  }
+})
+
+socket.on("SERVER_RETURN_USERID_CANCEL_PRIEND", data => {
+  // userIdB -> danh sach B
+  // userIdA -> xoa khoi giao dien A
+  const listAcceptFriends = document.querySelector(`[list-accept-friends="${data.userIdB}"]`)
+  if(listAcceptFriends) {
+    const userA = listAcceptFriends.querySelector(`[user-id="${data.userIdA}"]`)
+    if(userA) {
+      listAcceptFriends.removeChild(userA)
+    }
+  }
+})
+
+socket.on("SERVER_RETURN_STATUS_ONLINE_USER", data => {
+  const listFriends = document.querySelector("[list-friends]")
+  if(listFriends){
+    const user = listFriends.querySelector(`[user-id="${data.userId}"]`)
+    if(user){
+      user.querySelector("[status]").setAttribute("status", data.statusOnline)
+    }
+  }
+})

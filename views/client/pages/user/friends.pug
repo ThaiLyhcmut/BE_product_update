@@ -6,9 +6,9 @@ block main
     .row
       .col-12
         +box-head(pageTitle)
-    .row
+    .row(list-friends)
       each item in users
-        .col-4
+        .col-4(user-id=item.id)
           div(class="box-user")
             div(class="inner-avatar")
               img(
@@ -18,9 +18,15 @@ block main
             div(class="inner-info")
               div(class="inner-name") #{item.fullName}
               div(class="inner-buttons")
-                button(
+                a(
+                  href=`/chat/${item.roomChatId}`
                   class="btn btn-sm btn-primary mr-1"
-                ) Nhắn tin
+                ) Nhắn tin 
                 button(
                   class="btn btn-sm btn-secondary mr-1"
                 ) Xóa
+              div(
+                class="inner-status"
+                status=item.statusOnline
+              )
+                <i class="fa-solid fa-circle"></i>

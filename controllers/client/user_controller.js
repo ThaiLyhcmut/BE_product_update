@@ -32,13 +32,11 @@ module.exports.registerPost = async (req, res) => {
   res.redirect("/");
 }
 
-
 module.exports.login = (req, res) => {
   res.render("client/pages/user/login", {
     Pagetitle: "trang dang nhap"
   })
 }
-
 
 module.exports.loginPost = async (req, res) => {
   const user = await User.findOne({
@@ -61,24 +59,43 @@ module.exports.loginPost = async (req, res) => {
     return;
   }
   res.cookie("tokenUser", user.token);
+  await User.updateOne({
+    email: req.body.email
+  },{
+    statusOnline: "online"
+  })
+  _io.once("connection", socket => {
+    _io.emit("SERVER_RETURN_STATUS_ONLINE_USER", {
+      userId: user.id,
+      statusOnline: "online"
+    })
+  })
   req.flash("success", "Đăng nhập thành công!");
   res.redirect("/")
 }
 
-
 module.exports.logout = async (req, res) => {
+  _io.once("connection", socket => {
+    _io.emit("SERVER_RETURN_STATUS_ONLINE_USER", {
+      userId: res.locals.user.id,
+      statusOnline: "offline"
+    })
+  })
+  await User.updateOne({
+    email: res.locals.user.email
+  }, {
+    statusOnline: "offline"
+  })
   res.clearCookie("tokenUser");
   req.flash("success", "Đã đăng xuất!");
   res.redirect("/");
 };
-
 
 module.exports.forgotPassword = (req, res) => {
   res.render("client/pages/user/forgot-password", {
     Pagetitle: "Lay lai mat khau"
   })
 }
-
 
 module.exports.forgotPasswordPost = async (req, res) => {
   const email = req.body.email
@@ -114,7 +131,6 @@ module.exports.forgotPasswordPost = async (req, res) => {
   res.redirect(`/user/password/otp?email=${email}`)
 }
 
-
 module.exports.otpPassword = (req, res) => {
   const email = req.query.email
   res.render("client/pages/user/otp-password", {
@@ -145,6 +161,7 @@ module.exports.reset = (req, res) => {
     Pagetitle: "Doi mat khau"
   })
 }
+
 module.exports.resetPost = async (req, res) => {
   const tokenUser = req.cookies.tokenUser
   await User.updateOne({
@@ -220,17 +237,26 @@ module.exports.accept = async (req, res) => {
   })
 }
 
-module.exports.friend = async (req, res) => {
-  const users = await User.find({
-    _id:{
-      $in :res.locals.user.FriendList.map(item => item.userId)
-    },
-    deleted: false,
-    status: "active"
-  }).select("fullName avatar id")
+module.exports.friend = async (req, res) => { 
+  const users = []
+  for (const user of res.locals.user.FriendList){
+    const infoUser = await User.findOne({
+      _id: user.userId,
+      deleted: false,
+      status: "active"
+    }).select("fullName avatar id statusOnline")
+    users.push({
+      id: infoUser.id,
+      fullName: infoUser.fullName,
+      avatar: infoUser.avatar,
+      statusOnline: infoUser.statusOnline,
+      roomChatId: user.roomChatId
+    })
+  }
   res.render("client/pages/user/friends", {
     Pagetitle: "Dang sach loi moi da nhan",
-    users: users
+    users: users,
+
   })
 }
 

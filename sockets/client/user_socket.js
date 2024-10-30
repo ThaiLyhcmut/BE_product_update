@@ -1,3 +1,4 @@
+const RoomChat = require("../../models/rooms-chat_modle");
 const User = require("../../models/user_model");
 
 module.exports = (req, res) => {
@@ -42,6 +43,12 @@ module.exports = (req, res) => {
         userIdB: userIdB,
         length: userB.acceptFriends.length
       })
+      _io.emit("SERVER_RETURN_INFO_ACCEPT_PRIEND", {
+        userIdA: userIdA,
+        fullNameA: res.locals.user.fullName,
+        avatarA: "",
+        userIdB: userIdB,
+      })
     })
     socket.on("CLIEND_CANCEL_FRIEND",async (userIdB) => {
       // xoa idA -> userB accept
@@ -82,6 +89,11 @@ module.exports = (req, res) => {
         userIdB: userIdB,
         length: userB.acceptFriends.length
       })
+      // tra ve cho B thong tin cua A de xoa A khoi giao dien
+      _io.emit("SERVER_RETURN_USERID_CANCEL_PRIEND", {
+        userIdB: userIdB,
+        userIdA: userIdA,
+      })
     })
     socket.on("CLIEND_REFUSE_FRIEND",async (userIdB) => {
       // xoa idB -> userA accept
@@ -116,11 +128,33 @@ module.exports = (req, res) => {
     socket.on("CLIEND_ACCEPT_FRIEND",async (userIdB) => {
       // them { userIdB, roomchatID } -> friendsListA
       // xoa idB -> acceptFriendsA
+      // them { userIdB, roomchatID } -> friendsListA
+      // xoa idB -> acceptFriendsA
       const exitsBinA = await User.findOne({
         _id: userIdA,
         acceptFriends: userIdB
       });
-      if(exitsBinA){
+
+      const exitsAinB = await User.findOne({
+        _id: userIdB,
+        requestFriends: userIdA
+      })
+
+      if(exitsBinA && exitsAinB){
+        // tao phong chat chung cho A va B
+        const roomChat = new RoomChat({
+          typeRoom: "friend",
+          users: [
+            {
+              userId: userIdA,
+              role: "superAdmin",
+            },{
+              userId: userIdB,
+              role: "superAdmin"
+            }
+          ]
+        })
+        await roomChat.save()
         await User.updateOne({
           _id: userIdA
         },{
@@ -130,19 +164,10 @@ module.exports = (req, res) => {
           $push: {
             FriendList: {
               userId: userIdB,
-              roomChatId: ""
+              roomChatId: roomChat.id
             }
           }
         })
-      }
-      // them { userIdB, roomchatID } -> friendsListA
-
-      // xoa idB -> acceptFriendsA
-      const exitsAinB = await User.findOne({
-        _id: userIdB,
-        requestFriends: userIdA
-      })
-      if(exitsAinB){
         await User.updateOne({
           _id: userIdB
         },{
@@ -152,7 +177,7 @@ module.exports = (req, res) => {
           $push: {
             FriendList: {
               userId: userIdA,
-              roomChatId: ""
+              roomChatId: roomChat.id
             }
           }
         })

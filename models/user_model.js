@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
     acceptFriends: Array, // Danh sach nhung nguoi can chap nhan
     requestFriends: Array, // Danh sach nhung nguoi da gui yeu cau di
     FriendList: Array, // Danh sach nhung nguoi ban be
+    statusOnline: String,
     deleted: {
       type: Boolean,
       default: false,
