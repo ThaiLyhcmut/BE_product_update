@@ -19,5 +19,9 @@ module.exports = (app) => {
   app.use("/user" , userRouter)
   app.use("/chat",user_middleware.requireAuth, chatRouter)
   // xử dụng router để dẫn đến các đường dẫn con
-  
+  app.get("*", (req, res) => {
+    res.render("client/pages/errors/404", {
+      pageTitle: "404 Not Found",
+    });
+  });
 }

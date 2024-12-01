@@ -184,5 +184,4 @@ module.exports = (req, res) => {
       }
     })
   })
-  
 }

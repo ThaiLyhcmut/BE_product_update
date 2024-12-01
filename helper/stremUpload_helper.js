@@ -14,7 +14,6 @@ module.exports.streamUpload = (buffer) => {
         reject(error);
       }
     });
-
     streamifier.createReadStream(buffer).pipe(stream);
   });
 };

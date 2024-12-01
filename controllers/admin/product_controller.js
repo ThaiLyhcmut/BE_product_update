@@ -156,6 +156,7 @@ module.exports.create = async (req, res) => {
     listCategory: listCategory
   })
 }
+
 module.exports.createPost = async (req, res) => {
   if(!res.locals.role.permissions.includes("products_create")){
     return
